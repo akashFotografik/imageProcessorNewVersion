@@ -1,0 +1,582 @@
+generator client {
+    provider = "prisma-client-js"
+    output   = "../generated/prisma"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id                 String              @id @default(cuid())
+    firebaseId         String?             @unique
+    email              String              @unique
+    fullName           String
+    phone              String?
+    profileImage       String?
+    employeeId         String?             @unique
+    designation        String?
+    role               Role                @default(EMPLOYEE)
+    isActive           Boolean             @default(true)
+    dateOfJoining      DateTime?
+    dateOfBirth        DateTime?
+    address            String?
+    emergencyContact   String?
+    salary             Float?
+    workingHoursPerDay Float?              @default(8.0)
+    createdAt          DateTime            @default(now())
+    updatedAt          DateTime            @updatedAt
+    departmentId       String?
+    managerId          String?
+    Salary             Int?
+
+    // New relation for transaction history
+    enabledServices TransactionHistory[] @relation("ServiceEnabledBy") // Add this line
+    
+    // Many-to-many relationship with companies
+    userCompanies      UserCompany[]
+    
+    // New relation for departments where user is head
+    headedDepartments  Department[]        @relation("HeadOfDepartment")
+    
+    attendances        Attendance[]
+    auditLogs          AuditLog[]
+    chatMembers        ChatMember[]
+    documentUploads    Document[]          @relation("DocumentUploadedBy")
+    gatePassesCreated  GatePass[]          @relation("GatePassCreatedBy")
+    gatePassesFor      GatePass[]          @relation("GatePassFor")
+    leaves             Leave[]
+    sentMessages       Message[]           @relation("MessageSender")
+    reviewsGiven       PerformanceReview[] @relation("ReviewBy")
+    performanceReviews PerformanceReview[] @relation("ReviewFor")
+    tasksAssigned      Task[]              @relation("TaskAssignedTo")
+    tasksCreated       Task[]              @relation("TaskCreatedBy")
+    creditsRecharges   CreditsRecharge[]   @relation("CreditsPurchasedBy")
+    department         Department?         @relation(fields: [departmentId], references: [id])
+    manager            User?               @relation("ManagerEmployee", fields: [managerId], references: [id])
+    subordinates       User[]              @relation("ManagerEmployee")
+
+    @@map("users")
+}
+
+// New junction table for many-to-many relationship
+model UserCompany {
+    id        String   @id @default(cuid())
+    userId    String
+    companyId String
+    role      Role     @default(EMPLOYEE)
+    isActive  Boolean  @default(true)
+    joinedAt  DateTime @default(now())
+    leftAt    DateTime?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+    
+    @@unique([userId, companyId])
+    @@map("user_companies")
+}
+
+// Add this to the Company model
+model Company {
+    id                  String              @id @default(cuid())
+    name                String
+    address             String?
+    phone               String?
+    email               String?
+    website             String?
+    logo                String?
+    industry            String?
+    gstNumber           String?
+    panNumber           String?
+    isActive            Boolean             @default(true)
+    createdAt           DateTime            @default(now())
+    updatedAt           DateTime            @updatedAt
+    Country             String?
+    totalCredits        Float               @default(0)
+    usedCredits         Float               @default(0)
+    
+    // Many-to-many relationship with users
+    userCompanies       UserCompany[]
+    
+    // New relationship with services
+    services            Service[]
+    
+    auditLogs           AuditLog[]
+    chats               Chat[]
+    departments         Department[]
+    documents           Document[]
+    gatePasses          GatePass[]
+    inventoryItems      InventoryItem[]
+    suppliers           Supplier[]
+    workingDays         WorkingDay[]
+    creditsRecharges    CreditsRecharge[]
+    transactionHistory  TransactionHistory[]
+
+    @@map("companies")
+}
+
+model Service {
+    id          String   @id @default(cuid())
+    name        String
+    description String?
+    price       Float    // Price in credits
+    isActive    Boolean  @default(true)
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+    companyId   String
+    company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+    transactions TransactionHistory[] // Add this line
+
+    @@map("services")
+}
+
+model Department {
+    id          String   @id @default(cuid())
+    name        String
+    description String?
+    headOfDeptId String?  @map("headOfDeptId") // Changed from headOfDept: String?
+    isActive    Boolean  @default(true)
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+    companyId   String
+    company     Company  @relation(fields: [companyId], references: [id])
+    headOfDept  User?    @relation("HeadOfDepartment", fields: [headOfDeptId], references: [id]) // New relation
+    tasks       Task[]
+    users       User[]
+
+    @@map("departments")
+}
+
+model Attendance {
+    id            String           @id @default(cuid())
+    clockInTime   DateTime?
+    clockOutTime  DateTime?
+    workingHours  Float?
+    overtimeHours Float?           @default(0)
+    status        AttendanceStatus @default(PRESENT)
+    location      String?
+    notes         String?
+    date          DateTime         @default(now()) @db.Date
+    createdAt     DateTime         @default(now())
+    updatedAt     DateTime         @updatedAt
+    userId        String
+    companyId     String           // Added to track attendance per company
+    user          User             @relation(fields: [userId], references: [id])
+
+    @@unique([userId, date, companyId])  // Updated unique constraint
+    @@map("attendances")
+}
+
+model Leave {
+    id          String      @id @default(cuid())
+    startDate   DateTime    @db.Date
+    endDate     DateTime    @db.Date
+    leaveType   LeaveType
+    reason      String
+    status      LeaveStatus @default(PENDING)
+    appliedDate DateTime    @default(now())
+    approvedBy  String?
+    rejectedBy  String?
+    comments    String?
+    totalDays   Int
+    createdAt   DateTime    @default(now())
+    updatedAt   DateTime    @updatedAt
+    userId      String
+    companyId   String      // Added to track leaves per company
+    user        User        @relation(fields: [userId], references: [id])
+
+    @@map("leaves")
+}
+
+model WorkingDay {
+    id        String   @id @default(cuid())
+    dayOfWeek Int
+    isWorking Boolean  @default(true)
+    startTime String?
+    endTime   String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    companyId String
+    company   Company  @relation(fields: [companyId], references: [id])
+
+    @@unique([companyId, dayOfWeek])
+    @@map("working_days")
+}
+
+model Task {
+    id             String       @id @default(cuid())
+    title          String
+    description    String?
+    status         TaskStatus   @default(TODO)
+    priority       TaskPriority @default(MEDIUM)
+    startDate      DateTime?
+    dueDate        DateTime?
+    completedAt    DateTime?
+    estimatedHours Float?
+    actualHours    Float?
+    progress       Int          @default(0)
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime     @updatedAt
+    assignedToId   String
+    createdById    String
+    departmentId   String?
+    companyId      String       // Added to track tasks per company
+    assignedTo     User         @relation("TaskAssignedTo", fields: [assignedToId], references: [id])
+    createdBy      User         @relation("TaskCreatedBy", fields: [createdById], references: [id])
+    department     Department?  @relation(fields: [departmentId], references: [id])
+
+    @@map("tasks")
+}
+
+model Chat {
+    id          String       @id @default(cuid())
+    name        String?
+    type        ChatType
+    description String?
+    isActive    Boolean      @default(true)
+    createdAt   DateTime     @default(now())
+    updatedAt   DateTime     @updatedAt
+    companyId   String
+    members     ChatMember[]
+    company     Company      @relation(fields: [companyId], references: [id])
+    messages    Message[]
+
+    @@map("chats")
+}
+
+model ChatMember {
+    id        String   @id @default(cuid())
+    isAdmin   Boolean  @default(false)
+    joinedAt  DateTime @default(now())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    chatId    String
+    userId    String
+    chat      Chat     @relation(fields: [chatId], references: [id])
+    user      User     @relation(fields: [userId], references: [id])
+
+    @@unique([chatId, userId])
+    @@map("chat_members")
+}
+
+model Message {
+    id        String      @id @default(cuid())
+    content   String
+    type      MessageType @default(TEXT)
+    fileUrl   String?
+    fileName  String?
+    isPinned  Boolean     @default(false)
+    replyTo   String?
+    createdAt DateTime    @default(now())
+    updatedAt DateTime    @updatedAt
+    chatId    String
+    senderId  String
+    chat      Chat        @relation(fields: [chatId], references: [id])
+    sender    User        @relation("MessageSender", fields: [senderId], references: [id])
+
+    @@map("messages")
+}
+
+model InventoryItem {
+    id            String              @id @default(cuid())
+    name          String
+    description   String?
+    sku           String              @unique
+    category      String?
+    unit          String
+    currentStock  Float               @default(0)
+    minimumStock  Float               @default(0)
+    maximumStock  Float?
+    reorderLevel  Float?
+    unitPrice     Float?
+    location      String?
+    isActive      Boolean             @default(true)
+    createdAt     DateTime            @default(now())
+    updatedAt     DateTime            @updatedAt
+    companyId     String
+    company       Company             @relation(fields: [companyId], references: [id])
+    movements     InventoryMovement[]
+    supplierItems SupplierItem[]
+
+    @@map("inventory_items")
+}
+
+model InventoryMovement {
+    id           String                @id @default(cuid())
+    movementType InventoryMovementType
+    quantity     Float
+    unitPrice    Float?
+    reference    String?
+    notes        String?
+    movedBy      String
+    createdAt    DateTime              @default(now())
+    itemId       String
+    item         InventoryItem         @relation(fields: [itemId], references: [id])
+
+    @@map("inventory_movements")
+}
+
+model Supplier {
+    id            String         @id @default(cuid())
+    name          String
+    contactPerson String?
+    email         String?
+    phone         String?
+    address       String?
+    gstNumber     String?
+    panNumber     String?
+    isActive      Boolean        @default(true)
+    createdAt     DateTime       @default(now())
+    updatedAt     DateTime       @updatedAt
+    companyId     String
+    items         SupplierItem[]
+    company       Company        @relation(fields: [companyId], references: [id])
+
+    @@map("suppliers")
+}
+
+model SupplierItem {
+    id            String        @id @default(cuid())
+    supplierPrice Float?
+    leadTime      Int?
+    isPreferred   Boolean       @default(false)
+    createdAt     DateTime      @default(now())
+    updatedAt     DateTime      @updatedAt
+    supplierId    String
+    itemId        String
+    item          InventoryItem @relation(fields: [itemId], references: [id])
+    supplier      Supplier      @relation(fields: [supplierId], references: [id])
+
+    @@unique([supplierId, itemId])
+    @@map("supplier_items")
+}
+
+model GatePass {
+    id             String         @id @default(cuid())
+    passNumber     String         @unique
+    type           GatePassType
+    purpose        String?
+    visitorName    String?
+    visitorPhone   String?
+    visitorCompany String?
+    vehicleNumber  String?
+    itemsCarried   String?
+    entryTime      DateTime?
+    exitTime       DateTime?
+    status         GatePassStatus @default(ACTIVE)
+    validUntil     DateTime?
+    notes          String?
+    createdAt      DateTime       @default(now())
+    updatedAt      DateTime       @updatedAt
+    companyId      String
+    createdById    String
+    forUserId      String?
+    company        Company        @relation(fields: [companyId], references: [id])
+    createdBy      User           @relation("GatePassCreatedBy", fields: [createdById], references: [id])
+    forUser        User?          @relation("GatePassFor", fields: [forUserId], references: [id])
+
+    @@map("gate_passes")
+}
+
+model Document {
+    id             String       @id @default(cuid())
+    title          String
+    description    String?
+    fileName       String
+    fileUrl        String
+    fileSize       Int?
+    mimeType       String?
+    documentType   DocumentType @default(OTHER)
+    isConfidential Boolean      @default(false)
+    expiryDate     DateTime?
+    tags           String[]
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime     @updatedAt
+    companyId      String
+    uploadedById   String
+    company        Company      @relation(fields: [companyId], references: [id])
+    uploadedBy     User         @relation("DocumentUploadedBy", fields: [uploadedById], references: [id])
+
+    @@map("documents")
+}
+
+model PerformanceReview {
+    id                 String   @id @default(cuid())
+    reviewPeriodStart  DateTime @db.Date
+    reviewPeriodEnd    DateTime @db.Date
+    overallRating      Float?
+    goalsAchieved      Int?
+    punctualityScore   Float?
+    qualityScore       Float?
+    communicationScore Float?
+    teamworkScore      Float?
+    comments           String?
+    goals              String?
+    createdAt          DateTime @default(now())
+    updatedAt          DateTime @updatedAt
+    reviewForId        String
+    reviewById         String
+    companyId          String   // Added to track reviews per company
+    reviewBy           User     @relation("ReviewBy", fields: [reviewById], references: [id])
+    reviewFor          User     @relation("ReviewFor", fields: [reviewForId], references: [id])
+
+    @@map("performance_reviews")
+}
+
+model AuditLog {
+    id          String         @id @default(cuid())
+    action      AuditLogAction
+    tableName   String
+    recordId    String?
+    oldData     Json?
+    newData     Json?
+    ipAddress   String?
+    userAgent   String?
+    description String?
+    createdAt   DateTime       @default(now())
+    companyId   String
+    userId      String
+    company     Company        @relation(fields: [companyId], references: [id])
+    user        User           @relation(fields: [userId], references: [id])
+
+    @@map("audit_logs")
+}
+
+model CreditsRecharge {
+    id              String      @id @default(cuid())
+    credits         Float
+    amountPaid      Float
+    transactionId   String?     @unique
+    paymentMethod   String?
+    paymentStatus   String      @default("PENDING")
+    createdAt       DateTime    @default(now())
+    updatedAt       DateTime    @updatedAt
+    companyId       String
+    purchasedById   String
+    company         Company     @relation(fields: [companyId], references: [id])
+    purchasedBy     User        @relation("CreditsPurchasedBy", fields: [purchasedById], references: [id])
+
+    @@map("credits_recharges")
+}
+
+model TransactionHistory {
+    id              String      @id @default(cuid())
+    creditsUsed     Float
+    description     String?
+    createdAt       DateTime    @default(now())
+    companyId       String
+    serviceId       String?     // New field to link to Service
+    numberOfDaysUsed Int?       // New field for number of days used
+    enabledById     String?     // New field to store user ID who enabled the service
+    company         Company     @relation(fields: [companyId], references: [id])
+    service         Service?    @relation(fields: [serviceId], references: [id]) // Relation to Service
+    enabledBy       User?       @relation("ServiceEnabledBy", fields: [enabledById], references: [id]) // Relation to User
+
+    @@map("transaction_history")
+}
+
+enum Role {
+    SUPER_ADMIN
+    MANAGER
+    EMPLOYEE
+    INTERN
+    ADMIN
+    DIRECTOR
+}
+
+enum AttendanceStatus {
+    PRESENT
+    ABSENT
+    LATE
+    HALF_DAY
+    WORK_FROM_HOME
+}
+
+enum LeaveStatus {
+    PENDING
+    APPROVED
+    REJECTED
+    CANCELLED
+}
+
+enum LeaveType {
+    SICK_LEAVE
+    CASUAL_LEAVE
+    ANNUAL_LEAVE
+    MATERNITY_LEAVE
+    PATERNITY_LEAVE
+    EMERGENCY_LEAVE
+    UNPAID_LEAVE
+}
+
+enum TaskStatus {
+    TODO
+    IN_PROGRESS
+    COMPLETED
+    CANCELLED
+    ON_HOLD
+}
+
+enum TaskPriority {
+    LOW
+    MEDIUM
+    HIGH
+    URGENT
+}
+
+enum GatePassType {
+    EMPLOYEE
+    INTERVIEW
+    VISITOR
+    OFFICIAL
+}
+
+enum GatePassStatus {
+    ACTIVE
+    EXPIRED
+    CANCELLED
+}
+
+enum MessageType {
+    TEXT
+    IMAGE
+    FILE
+    VOICE
+}
+
+enum ChatType {
+    PERSONAL
+    GROUP
+    GENERAL
+}
+
+enum InventoryMovementType {
+    IN
+    OUT
+    ADJUSTMENT
+    RETURN
+}
+
+enum DocumentType {
+    CONTRACT
+    INVOICE
+    RECEIPT
+    POLICY
+    CERTIFICATE
+    REPORT
+    OTHER
+}
+
+enum AuditLogAction {
+    CREATE
+    UPDATE
+    DELETE
+    LOGIN
+    LOGOUT
+    VIEW
+    DOWNLOAD
+    UPLOAD
+}

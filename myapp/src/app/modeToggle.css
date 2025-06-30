@@ -1,0 +1,211 @@
+* {
+  box-sizing: border-box;
+}
+
+.container {
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.switch {
+  position: relative;
+  overflow: hidden;
+  width: 3.675rem;
+  height: 1.96rem;
+  border-radius: 1.225rem;
+}
+
+.switch input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.switch label {
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.background {
+  z-index: 1;
+  position: absolute;
+  width: 3.675rem;
+  height: 1.96rem;
+  border-radius: 1.225rem;
+  border: 0.1225rem solid #202020;
+  background: linear-gradient(to right, #484848 0%, #202020 100%);
+  transition: all 0.6s;
+}
+
+.fill {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: black;
+  transition: 1.5s all ease;
+}
+
+.switch input:checked ~ .fill {
+  background: white;
+}
+
+.stars1,
+.stars2 {
+  position: absolute;
+  height: 0.196rem;
+  width: 0.196rem;
+  background: #ffffff;
+  border-radius: 50%;
+  transition: 0.6s all ease;
+}
+
+.stars1 {
+  top: 2.94px;
+  right: 11.27px;
+}
+
+.stars2 {
+  top: 19.6px;
+  right: 23.52px;
+}
+
+.stars1:after,
+.stars1:before,
+.stars2:after,
+.stars2:before {
+  position: absolute;
+  content: "";
+  display: block;
+  height: 0.1225rem;
+  width: 0.1225rem;
+  background: #ffffff;
+  border-radius: 50%;
+  transition: 0.4s all ease;
+}
+
+.stars1:after {
+  top: 3.92px;
+  right: 9.8px;
+}
+
+.stars1:before {
+  top: 8.82px;
+  right: -5.88px;
+}
+
+.stars2:after {
+  top: -3.92px;
+  right: -7.84px;
+}
+
+.stars2:before {
+  top: 2.94px;
+  right: -12.74px;
+}
+
+.sun-moon {
+  z-index: 2;
+  position: absolute;
+  left: 0;
+  display: inline-block;
+  height: 1.47rem;
+  width: 1.47rem;
+  margin: 0.245rem;
+  background: #fffdf2;
+  border-radius: 50%;
+  transition: all 1s ease;
+  border: 0.1225rem solid #dee2c6;
+}
+
+.sun-moon .dots {
+  position: absolute;
+  top: 1.47px;
+  left: 11.27px;
+  height: 0.49rem;
+  width: 0.49rem;
+  background: #efeedb;
+  border: 0.1225rem solid #dee2c6;
+  border-radius: 50%;
+  transition: 0.8s all ease;
+}
+
+.sun-moon .dots:after,
+.sun-moon .dots:before {
+  position: absolute;
+  content: "";
+  display: block;
+  height: 0.1225rem;
+  width: 0.1225rem;
+  background: #efeedb;
+  border: 0.1225rem solid #dee2c6;
+  border-radius: 50%;
+  transition: 0.8s all ease;
+}
+
+.sun-moon .dots:after {
+  top: -1.96px;
+  left: -12.74px;
+}
+
+.sun-moon .dots:before {
+  top: 8.82px;
+  left: -4.9px;
+}
+
+.switch input:checked ~ .sun-moon {
+  left: calc(100% - 1.96rem);
+  background: #f5ec59;
+  border-color: #e7c65c;
+  transform: rotate(-25deg);
+}
+
+.switch input:checked ~ .sun-moon .dots,
+.switch input:checked ~ .sun-moon .dots:after,
+.switch input:checked ~ .sun-moon .dots:before {
+  background: #ffffff;
+  border-color: #ffffff;
+}
+
+.switch input:checked ~ .sun-moon .dots {
+  height: 0.735rem;
+  width: 0.735rem;
+  top: 0px;
+  left: -9.8px;
+  transform: rotate(25deg);
+}
+
+.switch input:checked ~ .sun-moon .dots:after {
+  height: 0.3185rem;
+  width: 0.3185rem;
+  top: 0.98px;
+  left: -5.88px;
+}
+
+.switch input:checked ~ .sun-moon .dots:before {
+  height: 0.196rem;
+  width: 0.196rem;
+  top: 2.94px;
+  left: 6.86px;
+}
+
+.switch input:checked ~ .background .stars1,
+.switch input:checked ~ .background .stars2 {
+  opacity: 0;
+  transform: translateY(0.98rem);
+}
+
+.switch input:checked ~ .background {
+  border: 0.1225rem solid #78c1d5;
+  background: linear-gradient(to right, #78c1d5 0%, #bbe7f5 100%);
+}
