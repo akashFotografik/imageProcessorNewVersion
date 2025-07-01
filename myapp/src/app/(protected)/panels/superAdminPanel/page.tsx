@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowBigDown, ArrowDown, ChevronDown } from "lucide-react";
 import { IconPlus } from "@tabler/icons-react";
 import DepartmentCard from "@/components/panels-components/department-card";
+import UsersList from "@/components/testing/userTable";
 
 const page = () => {
   return (
@@ -92,6 +93,7 @@ const page = () => {
           <div className="flex justify-end gap-4 items-center">
             <Button className="w-40">+ 5 more</Button>
             <Button className="w-40">Add Department</Button>
+            <UsersList />
           </div>
         </Card>
       </div>

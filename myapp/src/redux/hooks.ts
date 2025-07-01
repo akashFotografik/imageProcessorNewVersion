@@ -59,3 +59,47 @@ export const useUsersLoading = () => {
 export const useUsersError = () => {
   return useAppSelector((state) => state.users.error);
 };
+
+export const useAllCompanies = () => {
+  return useAppSelector((state) => state.companies.companies);
+};
+
+export const useUserCompanies = () => {
+  return useAppSelector((state) => state.companies.userCompanies);
+};
+
+export const useCompaniesLoading = () => {
+  return useAppSelector((state) => state.companies.loading);
+};
+
+export const useCompaniesError = () => {
+  return useAppSelector((state) => state.companies.error);
+};
+
+export const useAllDepartments = () => {
+  return useAppSelector((state) => state.departments.departments);
+};
+
+export const useUserDepartments = () => {
+  return useAppSelector((state) => state.departments.userDepartments);
+};
+
+export const useDepartmentsLoading = () => {
+  return useAppSelector((state) => state.departments.loading);
+};
+
+export const useDepartmentsError = () => {
+  return useAppSelector((state) => state.departments.error);
+};
+
+export const useAllTasks = () => {
+  return useAppSelector((state) => state.tasks.tasks);
+};
+
+export const useTasksLoading = () => {
+  return useAppSelector((state) => state.tasks.loading);
+};
+
+export const useTasksError = () => {
+  return useAppSelector((state) => state.tasks.error);
+};

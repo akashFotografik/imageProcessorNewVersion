@@ -79,7 +79,6 @@ model UserCompany {
     @@map("user_companies")
 }
 
-// Add this to the Company model
 model Company {
     id                  String              @id @default(cuid())
     name                String
@@ -98,12 +97,8 @@ model Company {
     totalCredits        Float               @default(0)
     usedCredits         Float               @default(0)
     
-    // Many-to-many relationship with users
     userCompanies       UserCompany[]
-    
-    // New relationship with services
     services            Service[]
-    
     auditLogs           AuditLog[]
     chats               Chat[]
     departments         Department[]
@@ -114,6 +109,7 @@ model Company {
     workingDays         WorkingDay[]
     creditsRecharges    CreditsRecharge[]
     transactionHistory  TransactionHistory[]
+    tasks               Task[]              @relation // Add this relation
 
     @@map("companies")
 }
@@ -217,16 +213,18 @@ model Task {
     completedAt    DateTime?
     estimatedHours Float?
     actualHours    Float?
+    isActive       Boolean      @default(true)
     progress       Int          @default(0)
     createdAt      DateTime     @default(now())
     updatedAt      DateTime     @updatedAt
-    assignedToId   String
+    assignedToId   String?      // Changed from String to String? to allow null
     createdById    String
     departmentId   String?
-    companyId      String       // Added to track tasks per company
-    assignedTo     User         @relation("TaskAssignedTo", fields: [assignedToId], references: [id])
+    companyId      String
+    assignedTo     User?        @relation("TaskAssignedTo", fields: [assignedToId], references: [id])
     createdBy      User         @relation("TaskCreatedBy", fields: [createdById], references: [id])
     department     Department?  @relation(fields: [departmentId], references: [id])
+    company        Company      @relation(fields: [companyId], references: [id]) // Added explicit relation
 
     @@map("tasks")
 }

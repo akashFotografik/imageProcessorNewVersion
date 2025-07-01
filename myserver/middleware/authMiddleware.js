@@ -152,6 +152,11 @@ const checkCompany = (requireCompany = true) => {
       });
     }
 
+    // Skip company check for SUPER_ADMIN
+    if (req.user.role === 'SUPER_ADMIN') {
+      return next();
+    }
+
     if (requireCompany && !req.user.userCompanies.length) {
       return res.status(403).json({
         success: false,

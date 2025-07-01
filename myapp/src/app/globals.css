@@ -120,3 +120,101 @@
     @apply bg-background text-foreground;
   }
 }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles for drag and drop functionality */
+.appointment-card {
+  user-select: none;
+  -webkit-user-drag: element;
+  transition: all 0.2s ease;
+}
+
+.appointment-card.dragging {
+  transform: scale(0.95);
+  opacity: 0.8;
+  z-index: 1000;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.user-column {
+  min-height: 500px;
+  transition: all 0.2s ease;
+}
+
+.user-column:hover {
+  background-color: rgba(59, 130, 246, 0.02);
+}
+
+/* Drag over states */
+.user-column.drag-over {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+/* Calendar grid for better drag detection */
+.calendar-grid {
+  position: relative;
+}
+
+/* Smooth transitions for all interactive elements */
+.appointment-card,
+.user-column,
+button {
+  transition: all 0.2s ease;
+}
+
+/* Improved hover states */
+.appointment-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Resize handles styling */
+.appointment-card .resize-handle {
+  transition: opacity 0.2s ease;
+}
+
+.appointment-card:hover .resize-handle {
+  opacity: 1;
+}
+
+/* Custom scrollbar for better UX */
+.calendar-grid::-webkit-scrollbar {
+  height: 8px;
+}
+
+.calendar-grid::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.calendar-grid::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.calendar-grid::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Visual feedback for drop zones */
+.drop-zone-active {
+  background-color: rgba(59, 130, 246, 0.1);
+  border: 2px dashed rgba(59, 130, 246, 0.4);
+  border-radius: 8px;
+}
+
+/* Blue background utility class */
+.bg-blue-25 {
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+/* Prevent text selection during drag operations */
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}

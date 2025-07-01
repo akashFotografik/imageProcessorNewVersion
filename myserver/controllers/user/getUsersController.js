@@ -8,6 +8,7 @@ const prisma = new PrismaClient();
 const getAllUsers = async (req, res) => {
   try {
     const currentUser = req.user;
+    console.log('Current user:', currentUser , 'Role:', currentUser.role);
 
     let users;
     
