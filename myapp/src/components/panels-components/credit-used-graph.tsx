@@ -3,6 +3,7 @@
 import { TrendingUp } from "lucide-react"
 import {
   Label,
+  PolarGrid,
   PolarRadiusAxis,
   RadialBar,
   RadialBarChart,
@@ -44,7 +45,7 @@ const chartConfig: ChartConfig = {
     color: "var(--chart-1)", // Color for used credits
   },
   remainingCredits: {
-    label: "Remaining Credits",
+    label: "Credits left",
     color: "hsl(200, 60%, 70%)", // Light blue for remaining credits
   },
   companyA: {
@@ -85,42 +86,68 @@ const CreditUsedGraph: React.FC = () => {
 
   return (
     <Card className="flex flex-col">
-      <CardHeader className="items-center">
+      <CardHeader className="items-center pb-0">
         <CardTitle>Company Credit Usage</CardTitle>
         <CardDescription>January - June 2025</CardDescription>
       </CardHeader>
-      <CardContent className="flex h-46">
+      <CardContent className="flex-1 pb-0">
         <ChartContainer
           config={chartConfig}
-          className="h-60"
+          className="mx-auto aspect-square max-h-[250px]"
         >
           <RadialBarChart
             data={chartData}
-            startAngle={0} // Start from left
-            endAngle={180} // End on right
+            startAngle={0}
+            endAngle={360}
             innerRadius={80}
-            outerRadius={130}
+            outerRadius={110}
           >
+            <PolarGrid
+              gridType="circle"
+              radialLines={false}
+              stroke="none"
+              className="first:fill-muted last:fill-background"
+              polarRadius={[86, 74]}
+            />
             <ChartTooltip
               cursor={false}
               content={<CustomTooltip />}
+            />
+            <RadialBar
+              dataKey="usedCredits"
+              stackId="a"
+              cornerRadius={10}
+              fill="var(--color-companyA)"
+              className="stroke-transparent stroke-2"
+            />
+            <RadialBar
+              dataKey="remainingCredits"
+              stackId="a"
+              cornerRadius={10}
+              fill="hsl(200, 60%, 70%)"
+              className="stroke-transparent stroke-2"
             />
             <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
               <Label
                 content={({ viewBox }) => {
                   if (viewBox && "cx" in viewBox && "cy" in viewBox) {
                     return (
-                      <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle">
+                      <text
+                        x={viewBox.cx}
+                        y={viewBox.cy}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                      >
                         <tspan
                           x={viewBox.cx}
-                          y={(viewBox.cy || 0) - 16}
-                          className="fill-foreground text-2xl font-bold"
+                          y={viewBox.cy}
+                          className="fill-foreground text-4xl font-bold"
                         >
                           {totalCredits.toLocaleString()}
                         </tspan>
                         <tspan
                           x={viewBox.cx}
-                          y={(viewBox.cy || 0) + 4}
+                          y={(viewBox.cy || 0) + 24}
                           className="fill-muted-foreground"
                         >
                           Total Credits
@@ -131,20 +158,6 @@ const CreditUsedGraph: React.FC = () => {
                 }}
               />
             </PolarRadiusAxis>
-            <RadialBar
-              dataKey="usedCredits"
-              stackId="a"
-              cornerRadius={0}
-              fill="var(--color-companyA)" // Used credits on left
-              className="stroke-transparent stroke-2"
-            />
-            <RadialBar
-              dataKey="remainingCredits"
-              stackId="a"
-              cornerRadius={0}
-              fill="hsl(200, 60%, 70%)" // Remaining credits on right, light blue
-              className="stroke-transparent stroke-2"
-            />
           </RadialBarChart>
         </ChartContainer>
       </CardContent>

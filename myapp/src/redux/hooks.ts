@@ -35,3 +35,27 @@ export const useUserError = () => {
 export const useTokenDetails = () => {
   return useAppSelector((state) => state.auth.tokenDetails);
 };
+
+export const useAllUsers = () => {
+  return useAppSelector((state) => state.users.users);
+};
+
+export const useAllAdmins = () => {
+  return useAppSelector((state) => state.users.admins);
+};
+
+export const useAllDirectors = () => {
+  return useAppSelector((state) => state.users.directors);
+};
+
+export const useAllManagers = () => {
+  return useAppSelector((state) => state.users.managers);
+};
+
+export const useUsersLoading = () => {
+  return useAppSelector((state) => state.users.loading);
+};
+
+export const useUsersError = () => {
+  return useAppSelector((state) => state.users.error);
+};
