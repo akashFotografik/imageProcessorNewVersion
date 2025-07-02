@@ -31,11 +31,6 @@ const page = () => {
           <div className="mt-4">
             <MultiCompanyGraph />
           </div>
-          <Card className="flex items-center justify-between mt-4">
-            <h1 className="text-2xl font-semibold flex items-center gap-2">
-              Departments <ArrowBigDown />{" "}
-            </h1>
-          </Card>
         </div>
         <div className="w-1/2">
           <Card className="p-4">
@@ -85,15 +80,17 @@ const page = () => {
       </div>
       <div className="mt-4 w-full">
         <Card className="p-4">
+          <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-semibold ml-2 mt-2">Departments</h1>
+          <div className="flex gap-4 items-center">
+            <Button className="w-40">+ 5 more</Button>
+            <Button className="w-40">Add Department</Button>
+          </div>
+          </div>
           <div className="grid grid-cols-3 gap-4">
             <DepartmentCard />
             <DepartmentCard />
             <DepartmentCard />
-          </div>
-          <div className="flex justify-end gap-4 items-center">
-            <Button className="w-40">+ 5 more</Button>
-            <Button className="w-40">Add Department</Button>
-            <UsersList />
           </div>
         </Card>
       </div>

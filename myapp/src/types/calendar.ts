@@ -1,29 +1,33 @@
+// types/calendar.ts
 export interface User {
-  id: number;
-  name: string;
-  color: string;
-}
-
-export interface Appointment {
-  id: number;
-  title: string;
-  startTime: string;
-  endTime: string;
-  userId: number;
-  description?: string;
-}
-
-export interface NewAppointment {
-  title: string;
-  startTime: string;
-  endTime: string;
-  userId: string;
-  description: string;
-}
-
-export interface DragState {
-  isDragging: boolean;
-  appointmentId?: number;
-  dragType?: 'move' | 'resize-start' | 'resize-end';
-  originalPosition?: { startTime: string; endTime: string; userId: number };
-}
+    id: string;
+    name: string;
+    avatar?: string;
+  }
+  
+  export interface Task {
+    id: string;
+    title: string;
+    description?: string;
+    duration: number; // in minutes
+    color?: string;
+    priority?: 'low' | 'medium' | 'high';
+  }
+  
+  export interface TimeSlot {
+    hour: number;
+    minute: number;
+  }
+  
+  export interface Assignment {
+    id: string;
+    taskId: string;
+    userId: string;
+    timeSlot: TimeSlot;
+  }
+  
+  export interface CalendarData {
+    users: User[];
+    tasks: Task[];
+    assignments: Assignment[];
+  }

@@ -33,7 +33,6 @@ export default function DepartmentCard() {
             <Progress value={73} className="h-2" />
           </div>
           <div className="text-sm">Budget: $2,500,000</div>
-          <div className="text-sm">Location: New York</div>
           <Button className="w-full">View Details</Button>
         </div>
       </CardContent>
